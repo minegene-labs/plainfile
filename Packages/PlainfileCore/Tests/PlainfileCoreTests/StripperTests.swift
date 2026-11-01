@@ -31,7 +31,9 @@ final class ImageStripperTests: XCTestCase {
 
     func testDefaultSelectionRemovesIdentifyingDataButKeepsOrientation() throws {
         let r = try strip(.jpeg) { $0.removeByDefault }
-        let identifying = r.after.fields.filter { [MetadataGroup.location, .people, .device].contains($0.group) }
+        let identifying = r.after.fields.filter {
+            [MetadataGroup.location, .people, .device].contains($0.group)
+        }
         XCTAssertTrue(identifying.isEmpty, "Left behind: \(identifying.map(\.name))")
         XCTAssertFalse(Verifier.contains(r.output, text: TestImages.author))
         XCTAssertFalse(Verifier.contains(r.output, text: TestImages.make))
@@ -107,7 +109,8 @@ final class VerifierTests: XCTestCase {
         let short = field("s", "Bob")
         let described = field("d", "12 bytes of data", literal: false)
         let bytes = Data("Bob 12 bytes of data".utf8)
-        let result = Verifier.verify(before: [short, described], removed: ["s", "d"], after: [], output: bytes)
+        let result = Verifier.verify(
+            before: [short, described], removed: ["s", "d"], after: [], output: bytes)
         XCTAssertTrue(result.passed)
     }
 
@@ -120,7 +123,9 @@ final class VerifierTests: XCTestCase {
 }
 
 final class FormatTests: XCTestCase {
-    private func assertDefaultStripCleans(_ type: UTType, file: StaticString = #filePath, line: UInt = #line) throws {
+    private func assertDefaultStripCleans(_ type: UTType, file: StaticString = #filePath, line: UInt = #line)
+        throws
+    {
         let input: Data
         do { input = try TestImages.planted(type) } catch {
             throw XCTSkip("macOS on this runner can't write \(type.identifier) test images")
@@ -132,11 +137,14 @@ final class FormatTests: XCTestCase {
         let removed = Set(before.fields.filter(\.removeByDefault).map(\.id))
         let output = try ImageStripper.strip(data: input, removing: removed)
         let after = try ImageScanner.scan(data: output)
-        let result = Verifier.verify(before: before.fields, removed: removed, after: after.fields, output: output)
+        let result = Verifier.verify(
+            before: before.fields, removed: removed, after: after.fields, output: output)
         XCTAssertTrue(
-            result.passed, "still present: \(result.stillPresent.map(\.id)), residue: \(result.residue.map(\.id))",
+            result.passed,
+            "still present: \(result.stillPresent.map(\.id)), residue: \(result.residue.map(\.id))",
             file: file, line: line)
-        XCTAssertTrue(try ImageComparator.pixelsMatch(input, output), "pixels changed", file: file, line: line)
+        XCTAssertTrue(
+            try ImageComparator.pixelsMatch(input, output), "pixels changed", file: file, line: line)
     }
 
     func testTIFFIsRefused() throws {

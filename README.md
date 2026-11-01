@@ -25,15 +25,14 @@ Items are grouped in plain language (Location, People and authorship, Device, Do
 
 Only download Plainfile from the Releases page above.
 
-**Verify it yourself (optional).** You don't need to trust this page, the maintainer, or the AI that wrote the code. Every release is built by GitHub from this public source, with a signed build record logged publicly by Sigstore, and builds are reproducible. One script checks it all:
+**Verify it yourself (optional).** Every release is built by GitHub from this public source, with a signed build record logged publicly by Sigstore. With the [GitHub CLI](https://cli.github.com):
 
 ```sh
-git clone https://github.com/MineGene/plainfile.git && cd plainfile
-scripts/verify-release.sh 0.1.1            # checksum, signed build record, app contents, permissions
-scripts/verify-release.sh 0.1.1 --rebuild  # also rebuild from source and compare (needs the Xcode in .xcode-version)
+shasum -a 256 -c Plainfile-vX.Y.Z.zip.sha256
+gh attestation verify Plainfile-vX.Y.Z.zip -R minegene-labs/plainfile
 ```
 
-It confirms the DMG matches its checksum, that GitHub's signed record says this repository's release workflow built it, that the app inside matches that record file by file, and that the app has no network access. With `--rebuild` it builds the same source itself and checks you get exactly the same app.
+The first confirms the download matches its checksum; the second that this repository's release workflow built it.
 
 Requires macOS 15 or later on a Mac with Apple silicon (M1 or later). Intel Macs are not supported.
 
@@ -77,10 +76,10 @@ Everything is built, tested and released by GitHub Actions — no developer hard
 - **CI** (every push, every pull request and weekly): core tests, app build, and a check that the app is sandboxed, has no network entitlement, and the parser has no file access.
 - **Commit privacy** check: every commit must use a GitHub no-reply email, with no attribution trailers.
 - **CodeQL** security analysis of the Swift code, and **zizmor** audits of the workflows themselves.
-- **Minimal dependencies:** the app contains no third-party code, and it's built with Apple's tools only. Every GitHub Action is pinned to an exact commit; Dependabot proposes updates after a 7-day cooldown.
-- **Release** (started with one tap from the Actions tab, after approval): builds, ad-hoc signs, packages a DMG, attaches a checksum and build attestation, and publishes the release.
+- **Minimal dependencies:** the app contains no third-party code, and it's built with Apple's tools only. Every GitHub Action is pinned to an exact commit; Dependabot proposes updates weekly.
+- **Release:** merging the release pull request builds, ad-hoc signs and zips the app, attaches a checksum and build attestation, and publishes the release.
 
-To build locally on an Apple-silicon Mac with Xcode: `scripts/build-app.sh`.
+To build locally on an Apple-silicon Mac, open `Plainfile.xcodeproj` in Xcode and build.
 
 ## Contributing
 
