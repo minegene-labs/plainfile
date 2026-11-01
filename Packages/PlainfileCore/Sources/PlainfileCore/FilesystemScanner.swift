@@ -66,7 +66,8 @@ public enum FilesystemScanner {
                 value: urls.isEmpty ? "Unreadable" : urls.joined(separator: "\n"),
                 source: source, risk: .high)
         case quarantine:
-            let parts = data.flatMap { String(data: $0, encoding: .utf8) }?
+            let parts =
+                data.flatMap { String(data: $0, encoding: .utf8) }?
                 .split(separator: ";", omittingEmptySubsequences: false) ?? []
             let app = parts.count > 2 && !parts[2].isEmpty ? String(parts[2]) : "unknown app"
             return MetadataField(
